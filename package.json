@@ -4,6 +4,8 @@
   "scripts": {
     "dev": "concurrently \"vite\" \"ts-node server/index.ts\"",
     "build": "vite build",
+    "build:full": "vite build && echo Build complete - run 'npm run start' to serve",
+    "start": "ts-node server/index.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

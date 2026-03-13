@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { WasteBurnEvent, FilterState } from "../lib/types";
-import { subscribeToEvents, isDemoMode } from "../lib/firebase";
-import { MOCK_EVENTS } from "../lib/mock-data";
+import { subscribeToEvents } from "../lib/firebase";
 
 export interface UseEventsResult {
   events: WasteBurnEvent[];
@@ -27,12 +26,6 @@ export function useEvents(): UseEventsResult {
   useEffect(() => {
     setLoading(true);
     setError(null);
-
-    if (isDemoMode) {
-      setEvents(MOCK_EVENTS);
-      setLoading(false);
-      return;
-    }
 
     const unsubscribe = subscribeToEvents(filters, (incoming) => {
       setEvents(incoming);

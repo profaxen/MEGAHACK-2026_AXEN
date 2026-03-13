@@ -1,20 +1,8 @@
-Project Title WatchBurn --- AI-Powered Wildfire Detection System 
 
-*Problem Statement
+Topic :- WatchBurn: AI-Powered Satellite System for Detecting Illegal Waste Burning
 
-Wildfires cause massive damage to forests, wildlife, and human
-settlements every year. Many fires are detected too late, after they
-have already spread widely. Current monitoring methods often rely on
-manual reporting or limited ground sensors, which delays response time.
-There is a need for an intelligent early-warning system that can detect
-fires quickly using satellite data and automatically alert authorities
-before the fire spreads. 
+Problem Statement
+Illegal waste burning is a major environmental issue that causes severe air pollution, greenhouse gas emissions, and health risks. Current monitoring methods rely on manual inspections and limited sensors, making it difficult to detect burning activities across large or remote areas in real time. There is a need for an intelligent system that can automatically monitor and detect illegal waste burning at scale.
 
-*Proposed Solution
-
-WatchBurn is an AI-powered
-wildfire detection platform that uses multi-satellite imagery and
-machine learning to detect early signs of wildfires such as smoke, heat
-anomalies, and vegetation stress. The system analyzes data from
-satellites and identifies potential fire zones in real time, allowing
-faster response and prevention.
+Proposed Solution – WatchBurn
+WatchBurn is an AI-powered satellite monitoring system that analyzes thermal hotspot data, satellite imagery, and geospatial information to detect illegal waste burning activities. Using machine learning and pattern analysis, the platform identifies suspicious burning events, maps high-risk areas, and provides real-time insights through an interactive dashboard to help authorities take faster action.

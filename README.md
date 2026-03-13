@@ -1,5 +1,5 @@
 ## WatchBurn
-
+# Find the fire before it spread
 **WatchBurn** is a production-ready, public-access full-stack web application for **AI-based illegal waste burning detection**. It combines a premium dark “ops satellite platform” UI with realtime Firestore event streams, analytics, exports, and a local ML service with graceful demo fallbacks.
 
 ### Architecture

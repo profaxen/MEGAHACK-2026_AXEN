@@ -12,7 +12,6 @@ import EventCard, { EventCardSkeleton } from "../components/EventCard";
 import ClassificationBar from "../components/ClassificationBar";
 import EventMap from "../components/Map";
 import { useEvents } from "../hooks/useEvents";
-import { useStats } from "../hooks/useStats";
 import type { WasteBurnEvent, Cluster } from "../lib/types";
 import { getClusters } from "../lib/firebase";
 
@@ -36,14 +35,26 @@ function StatsSkeletonRow(): JSX.Element {
 export function Dashboard(): JSX.Element {
   const navigate = useNavigate();
   const { events, loading, filters, setFilters } = useEvents();
-  const { stats, loading: statsLoading } = useStats();
   const [clusters, setClusters] = useState<Cluster[]>([]);
 
   useMemo(() => {
     void getClusters().then(setClusters).catch(() => setClusters([]));
   }, []);
 
-  const filteredEvents = events;
+  const filteredEvents = useMemo(() => {
+    return events.filter((e) => {
+      const matchesClass =
+        !filters.classification ||
+        filters.classification === "all" ||
+        e.classification === filters.classification;
+      const matchesStatus =
+        !filters.status ||
+        filters.status === "all" ||
+        e.status === filters.status;
+      const matchesConf = e.confidence >= (filters.confidence_min || 0) / 100;
+      return matchesClass && matchesStatus && matchesConf;
+    });
+  }, [events, filters]);
 
   const highRisk = useMemo(
     () => filteredEvents.filter((e) => e.confidence > 0.75).length,
@@ -69,7 +80,7 @@ export function Dashboard(): JSX.Element {
 
   const listToRender: WasteBurnEvent[] = useMemo(() => {
     const list = [...filteredEvents];
-    list.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+    list.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
     return list;
   }, [filteredEvents]);
 
@@ -94,14 +105,11 @@ export function Dashboard(): JSX.Element {
         </div>
       </div>
 
-      {statsLoading || !stats ? (
-        <StatsSkeletonRow />
-      ) : (
-        <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-4">
           <StatCard
             label="Total Detections"
             icon={<SatelliteDish className="h-4 w-4 text-[var(--accent-green)]" />}
-            value={stats.total}
+            value={filteredEvents.length}
             trendLabel="+12% vs last week"
             trendPositive
             accentColor="green"
@@ -131,7 +139,7 @@ export function Dashboard(): JSX.Element {
             accentColor="blue"
           />
         </div>
-      )}
+
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="relative">

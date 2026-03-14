@@ -21,12 +21,13 @@ import PageWrapper from "../components/PageWrapper";
 import { useEvents } from "../hooks/useEvents";
 import ClassificationIcon from "../components/ClassificationIcon";
 import type { WasteClassification, WasteBurnEvent } from "../lib/types";
+import { getDisplayClassification } from "../lib/classification-utils";
 import { EventCardSkeleton } from "../components/EventCard";
 
 type RangeKey = "7D" | "30D" | "90D" | "ALL";
 
 function dayKey(iso: string): string {
-  return iso.slice(0, 10);
+  return (iso || new Date().toISOString()).slice(0, 10);
 }
 
 function clampEventsByRange(events: WasteBurnEvent[], range: RangeKey): WasteBurnEvent[] {
@@ -95,7 +96,9 @@ export function Analytics(): JSX.Element {
       const k = dayKey(e.timestamp);
       const cur = map.get(k) ?? { date: k, count: 0, illegal_count: 0 };
       cur.count += 1;
-      if (e.classification === "illegal_waste_burning") cur.illegal_count += 1;
+      if (getDisplayClassification(e) === "illegal_waste_burning") {
+        cur.illegal_count += 1;
+      }
       map.set(k, cur);
     });
     const arr = Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date));
@@ -110,7 +113,8 @@ export function Analytics(): JSX.Element {
       natural_fire: 0
     };
     scoped.forEach((e) => {
-      base[e.classification] += 1;
+      const cls = getDisplayClassification(e);
+      base[cls] += 1;
     });
     return base;
   }, [scoped]);
@@ -317,7 +321,7 @@ export function Analytics(): JSX.Element {
               <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[var(--text-secondary)]">
                 {donutData.map((d) => (
                   <div key={d.key} className="flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[rgba(13,20,33,0.55)] px-3 py-1">
-                    <ClassificationIcon classification={d.key} size={14} />
+                    <ClassificationIcon classification={d.key} size={18} />
                     <span>{d.name}</span>
                     <span className="font-mono text-[11px] text-[var(--text-primary)]">
                       {d.value}

@@ -15,7 +15,8 @@ import {
   query,
   where,
   updateDoc,
-  writeBatch
+  writeBatch,
+  addDoc
 } from "firebase/firestore";
 import { getAnalytics, type Analytics, isSupported } from "firebase/analytics";
 import type {
@@ -240,14 +241,38 @@ export function subscribeToEvents(
       },
       () => {
         isDemoMode = true;
-        callback(MOCK_EVENTS);
+        const filtered = MOCK_EVENTS.filter((e) => {
+          const matchesClass =
+            !filters.classification ||
+            filters.classification === "all" ||
+            e.classification === filters.classification;
+          const matchesStatus =
+            !filters.status ||
+            filters.status === "all" ||
+            e.status === filters.status;
+          const matchesConfidence = e.confidence >= filters.confidence_min / 100;
+          return matchesClass && matchesStatus && matchesConfidence;
+        });
+        callback(filtered);
       }
     );
 
     return unsubscribe;
   } catch {
     isDemoMode = true;
-    callback(MOCK_EVENTS);
+    const filtered = MOCK_EVENTS.filter((e) => {
+      const matchesClass =
+        !filters.classification ||
+        filters.classification === "all" ||
+        e.classification === filters.classification;
+      const matchesStatus =
+        !filters.status ||
+        filters.status === "all" ||
+        e.status === filters.status;
+      const matchesConfidence = e.confidence >= filters.confidence_min / 100;
+      return matchesClass && matchesStatus && matchesConfidence;
+    });
+    callback(filtered);
     return () => undefined;
   }
 }
@@ -350,4 +375,49 @@ export async function getStats(): Promise<SystemStats> {
     return getMockStats();
   }
 }
+
+export async function addEventToDatabase(event: Partial<WasteBurnEvent>): Promise<string | null> {
+  ensureFirebase();
+  if (!db || isDemoMode) {
+    return null;
+  }
+  try {
+    const defaultData = {
+      id: `evt_${Date.now()}`,
+      lat: 0,
+      lon: 0,
+      timestamp: new Date().toISOString(),
+      confidence: 0,
+      classification: "unknown",
+      status: "pending",
+      smoke_probability: 0,
+      smoke_detected: false,
+      thermal_score: 0,
+      brightness: 0,
+      cluster_id: null,
+      land_use: "unknown",
+      satellite_source: "System",
+      spectral_indices: { ndvi: 0, nbr: 0, bai: 0, swir_ratio: 0 },
+      class_probabilities: {
+        illegal_waste_burning: 0,
+        agricultural_fire: 0,
+        industrial_flare: 0,
+        natural_fire: 0
+      },
+      notes: "",
+      created_at: new Date().toISOString(),
+      location_name: "Unknown",
+      city: "",
+      state: "",
+      country: ""
+    };
+    
+    const payload = { ...defaultData, ...event, id: `evt_${Date.now()}` };
+    const docRef = await addDoc(collection(db, "events"), payload);
+    return docRef.id;
+  } catch {
+    return null;
+  }
+}
+
 

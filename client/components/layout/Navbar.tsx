@@ -2,7 +2,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Play, Radio } from "lucide-react";
 import { runFullPipeline } from "../../lib/api-client";
-import { isDemoMode } from "../../lib/firebase";
+import { isDemoMode, addEventToDatabase } from "../../lib/firebase";
 
 interface NavItem {
   label: string;
@@ -36,8 +36,28 @@ export function Navbar(): JSX.Element {
     if (running) return;
     setRunning(true);
     try {
-      await runFullPipeline({});
-      setToast("Full pipeline executed (demo).");
+      const result = await runFullPipeline({});
+      await addEventToDatabase({
+        classification: result.classification as any,
+        confidence: result.confidence,
+        class_probabilities: result.class_probabilities as any,
+        smoke_probability: result.smoke_probability,
+        thermal_score: result.thermal_probability,
+        spectral_indices: {
+          ndvi: result.ndvi,
+          nbr: result.nbr,
+          bai: result.bai,
+          swir_ratio: 1.0
+        },
+        lat: 23.0 + Math.random() * 5,
+        lon: 80.0 + Math.random() * 5,
+        location_name: "New Detection",
+        city: "Unknown",
+        state: "Unknown",
+        country: "India",
+        satellite_source: "Sentinel-2"
+      });
+      setToast("Full pipeline executed. Event saved to database.");
     } catch {
       setToast("Pipeline failed, using demo output.");
     } finally {

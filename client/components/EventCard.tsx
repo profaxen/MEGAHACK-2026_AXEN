@@ -2,6 +2,7 @@ import type { MouseEvent } from "react";
 import { useState } from "react";
 import { Clock3 } from "lucide-react";
 import type { WasteBurnEvent } from "../lib/types";
+import { getDisplayClassification } from "../lib/classification-utils";
 import ClassificationIcon, {
   getClassificationLabel,
   getClassificationColor
@@ -61,8 +62,9 @@ export function EventCard({ event, onClick }: EventCardProps): JSX.Element {
     setGlowPos({ x, y });
   };
 
-  const classificationLabel = getClassificationLabel(event.classification);
-  const color = getClassificationColor(event.classification);
+  const displayClass = getDisplayClassification(event);
+  const classificationLabel = getClassificationLabel(displayClass);
+  const color = getClassificationColor(displayClass);
 
   const statusColor =
     event.status === "pending"
@@ -78,10 +80,13 @@ export function EventCard({ event, onClick }: EventCardProps): JSX.Element {
       ? "Verified"
       : "Rejected";
 
-  const location =
-    event.location_name ||
+  // Use short location: prefer city + country, fall back to location_name (truncated)
+  const rawLocation =
     [event.city, event.country].filter(Boolean).join(", ") ||
-    `${event.lat.toFixed(3)}, ${event.lon.toFixed(3)}`;
+    event.location_name ||
+    `${(event.lat || 0).toFixed(3)}, ${(event.lon || 0).toFixed(3)}`;
+  // Cap the display string to avoid overflow from long geocoded addresses
+  const location = rawLocation.length > 35 ? rawLocation.slice(0, 35) + "…" : rawLocation;
 
   const confidencePercent = Math.round(event.confidence * 100);
 
@@ -102,7 +107,7 @@ export function EventCard({ event, onClick }: EventCardProps): JSX.Element {
       />
       <div className="mb-2 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
-          <ClassificationIcon classification={event.classification} />
+          <ClassificationIcon classification={displayClass} size={24} />
           <span>{classificationLabel}</span>
         </div>
         <span
@@ -112,12 +117,12 @@ export function EventCard({ event, onClick }: EventCardProps): JSX.Element {
           {statusLabel}
         </span>
       </div>
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)]">
-          <span className="text-[var(--accent-green)]">📍</span>
+      <div className="mb-2 flex items-center justify-between gap-2 overflow-hidden">
+        <div className="flex min-w-0 items-center gap-1 text-xs text-[var(--text-secondary)]">
+          <span className="shrink-0 text-[var(--accent-green)]">📍</span>
           <span className="truncate">{location}</span>
         </div>
-        <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-muted)]">
+        <span className="shrink-0 text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--text-muted)]">
           {event.satellite_source}
         </span>
       </div>

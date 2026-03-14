@@ -10,6 +10,7 @@ import ClassificationIcon, {
   getClassificationColor
 } from "../components/ClassificationIcon";
 import type { WasteBurnEvent } from "../lib/types";
+import { getDisplayClassification } from "../lib/classification-utils";
 import { getEventById, updateEventStatus } from "../lib/firebase";
 import { MOCK_EVENTS } from "../lib/mock-data";
 
@@ -131,8 +132,9 @@ export function EventDetail(): JSX.Element {
 
   if (loading || !event) return <DetailSkeleton />;
 
-  const classColor = getClassificationColor(event.classification);
-  const classLabel = getClassificationLabel(event.classification);
+  const displayClass = getDisplayClassification(event);
+  const classColor = getClassificationColor(displayClass);
+  const classLabel = getClassificationLabel(displayClass);
   const confidencePct = Math.round(event.confidence * 100);
   const radialData = [{ name: "confidence", value: confidencePct, fill: classColor }];
 
@@ -167,7 +169,7 @@ export function EventDetail(): JSX.Element {
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <ClassificationIcon classification={event.classification} size={22} />
+          <ClassificationIcon classification={event.classification} size={28} />
           <h1 className="text-2xl font-semibold tracking-[-0.04em]">
             {classLabel}
           </h1>
@@ -197,6 +199,7 @@ export function EventDetail(): JSX.Element {
             </div>
             <div className="h-[280px] overflow-hidden rounded-xl border border-[var(--border-subtle)]">
               <MapContainer
+                key={event.id}
                 center={[event.lat, event.lon]}
                 zoom={12}
                 className="h-full w-full"
@@ -234,24 +237,31 @@ export function EventDetail(): JSX.Element {
             <ScoreBar label="Thermal Score" value={event.thermal_score} color="var(--accent-amber)" />
             <ScoreBar label="Overall Confidence" value={event.confidence} color={overallColor} />
 
-            <div className="mt-4 h-[160px] w-full rounded-xl border border-[var(--border-subtle)] bg-[rgba(2,5,9,0.65)] p-3">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadialBarChart
-                  data={radialData}
-                  innerRadius="70%"
-                  outerRadius="100%"
-                  startAngle={90}
-                  endAngle={-270}
-                >
-                  <RadialBar dataKey="value" cornerRadius={10} background />
-                </RadialBarChart>
-              </ResponsiveContainer>
-              <div className="-mt-24 text-center">
-                <div className="font-mono text-3xl font-semibold text-[var(--text-primary)]">
-                  {confidencePct}%
-                </div>
-                <div className="text-xs text-[var(--text-secondary)]">
-                  overall confidence
+            <div className="mt-4 flex items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[rgba(2,5,9,0.65)] py-5">
+              <div className="relative h-[120px] w-[120px]">
+                <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
+                  <circle
+                    cx="60" cy="60" r="50"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.06)"
+                    strokeWidth="10"
+                  />
+                  <circle
+                    cx="60" cy="60" r="50"
+                    fill="none"
+                    stroke={overallColor}
+                    strokeWidth="10"
+                    strokeLinecap="round"
+                    strokeDasharray={`${confidencePct * 3.14} ${314 - confidencePct * 3.14}`}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="font-mono text-2xl font-bold text-[var(--text-primary)]">
+                    {confidencePct}%
+                  </span>
+                  <span className="text-[10px] text-[var(--text-secondary)]">
+                    Confidence
+                  </span>
                 </div>
               </div>
             </div>

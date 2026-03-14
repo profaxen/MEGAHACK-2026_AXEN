@@ -38,7 +38,7 @@ export function ClassificationBar({
             ].join(" ")}
           >
             {opt.classification ? (
-              <ClassificationIcon classification={opt.classification} size={14} />
+              <ClassificationIcon classification={opt.classification} size={18} />
             ) : (
               <span className="text-xs">◎</span>
             )}

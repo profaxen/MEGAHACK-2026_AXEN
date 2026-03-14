@@ -271,4 +271,20 @@ body {
   }
 }
 
+.wb-map-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
 
+.wb-map-tooltip::before {
+  display: none !important;
+}
+
+.leaflet-tooltip-top.wb-map-tooltip::before,
+.leaflet-tooltip-bottom.wb-map-tooltip::before,
+.leaflet-tooltip-left.wb-map-tooltip::before,
+.leaflet-tooltip-right.wb-map-tooltip::before {
+  display: none !important;
+}

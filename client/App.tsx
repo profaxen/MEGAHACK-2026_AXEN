@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import EventDetail from "./pages/EventDetail";
 import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
+import FullMap from "./pages/FullMap";
 import { initializeData } from "./lib/firebase";
 import { useEffect } from "react";
 
@@ -27,6 +28,7 @@ export function App(): JSX.Element {
           <Route path="/events/:eventId" element={<EventDetail />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/map" element={<FullMap />} />
         </Routes>
       </AnimatePresence>
       <Footer />

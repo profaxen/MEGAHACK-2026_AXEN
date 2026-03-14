@@ -89,7 +89,11 @@ function createEvent(
   clusterId: string
 ): WasteBurnEvent {
   const rand = seededRandom(1000 + index);
-  const classification = pickRandom(rand, classificationPool);
+  // Weighted distribution: ~42% illegal, ~24% agriculture, ~19% industrial, ~15% natural
+  const classWeights = [0.42, 0.66, 0.85, 1.0];
+  const classRoll = ((index * 7 + 3) % 100) / 100;
+  const classIdx = classWeights.findIndex((w) => classRoll < w);
+  const classification = classificationPool[classIdx >= 0 ? classIdx : 0];
   const landUse = pickRandom(rand, landUsePool);
   const confidence = 0.5 + rand() * 0.5;
   const smokeProb = 0.4 + rand() * 0.6;
@@ -99,7 +103,7 @@ function createEvent(
   const nbr = -0.2 + rand() * 0.6;
   const bai = 300 + rand() * 900;
   const swirRatio = 0.7 + rand() * 0.8;
-  const nowOffsetHours = rand() * 72;
+  const nowOffsetHours = rand() * 24 * 120; // Spread over ~120 days
   const createdAt = new Date(
     baseTimestamp - nowOffsetHours * 3600 * 1000
   ).toISOString();
@@ -180,33 +184,33 @@ const events: WasteBurnEvent[] = [];
 const clusterIds = Array.from({ length: 12 }, (_, i) => `cluster_${`${i + 1}`.padStart(2, "0")}`);
 
 function distributeEvents(): void {
-  // India: 60 events
+  // India: 78 events
   let idx = 0;
-  for (let i = 0; i < 60; i += 1) {
+  for (let i = 0; i < 78; i += 1) {
     const city = indiaCities[i % indiaCities.length];
     const clusterId = clusterIds[idx % clusterIds.length];
     events.push(createEvent(idx, city, clusterId));
     idx += 1;
   }
 
-  // Bangladesh: 15
-  for (let i = 0; i < 15; i += 1) {
+  // Bangladesh: 27
+  for (let i = 0; i < 27; i += 1) {
     const city = bangladeshCities[i % bangladeshCities.length];
     const clusterId = clusterIds[idx % clusterIds.length];
     events.push(createEvent(idx, city, clusterId));
     idx += 1;
   }
 
-  // Pakistan: 15
-  for (let i = 0; i < 15; i += 1) {
+  // Pakistan: 24
+  for (let i = 0; i < 24; i += 1) {
     const city = pakistanCities[i % pakistanCities.length];
     const clusterId = clusterIds[idx % clusterIds.length];
     events.push(createEvent(idx, city, clusterId));
     idx += 1;
   }
 
-  // Myanmar: 10
-  for (let i = 0; i < 10; i += 1) {
+  // Myanmar: 18
+  for (let i = 0; i < 18; i += 1) {
     const city = myanmarCities[i % myanmarCities.length];
     const clusterId = clusterIds[idx % clusterIds.length];
     events.push(createEvent(idx, city, clusterId));

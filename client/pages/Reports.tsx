@@ -282,7 +282,7 @@ export function Reports(): JSX.Element {
                           : "border-[var(--border-subtle)] bg-[rgba(13,20,33,0.55)] text-[var(--text-secondary)] hover:border-[var(--border-default)]"
                       ].join(" ")}
                     >
-                      <ClassificationIcon classification={c} size={16} />
+                      <ClassificationIcon classification={c} size={20} />
                       <span className="capitalize">{c.split("_").join(" ")}</span>
                     </button>
                   );
@@ -451,9 +451,9 @@ export function Reports(): JSX.Element {
                         <tr key={e.id} className="border-t border-[var(--border-subtle)]">
                           <td className="px-3 py-2">
                             <div className="flex items-center gap-2">
-                              <ClassificationIcon classification={e.classification} size={14} />
+                              <ClassificationIcon classification={e.classification} size={20} />
                               <span className="capitalize text-[var(--text-primary)]">
-                                {e.classification.split("_").join(" ")}
+                                {(e.classification || "unknown").split("_").join(" ")}
                               </span>
                             </div>
                           </td>
@@ -467,7 +467,7 @@ export function Reports(): JSX.Element {
                             {e.status}
                           </td>
                           <td className="px-3 py-2 font-mono text-[var(--text-muted)]">
-                            {e.timestamp.slice(0, 10)}
+                            {(e.timestamp || new Date().toISOString()).slice(0, 10)}
                           </td>
                         </tr>
                       ))}
